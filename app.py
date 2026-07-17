@@ -18,6 +18,16 @@ from __future__ import annotations
 
 import time
 
+# Pre-warm the embedding model in the main thread BEFORE Streamlit's script
+# runner initialises. Loading PyTorch mid-session inside Streamlit's secondary
+# thread causes a segfault on Windows with Python 3.14.
+try:
+    from core.embeddings import embed_query as _prewarm_embed
+    _prewarm_embed("warmup")
+    del _prewarm_embed
+except Exception:
+    pass  # Gemini or any other embedder that doesn't need pre-warming
+
 import streamlit as st
 
 from core import config, index, synthesis

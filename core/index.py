@@ -121,17 +121,26 @@ def vector_search(
     """Pure vector retrieval (no BM25). Returns chunks ordered by similarity.
 
     where_filter: optional ChromaDB `where` clause, e.g. {"source_task": "cjpe"}.
+    Returns empty list (not raises) if the index is corrupt or the embedder fails,
+    so the hybrid retriever can degrade gracefully to BM25-only.
     """
-    coll = get_collection()
-    qvec = embed_query(query)
-    query_kwargs: dict = dict(
-        query_embeddings=[qvec],
-        n_results=top_k,
-        include=["documents", "metadatas", "distances"],
-    )
-    if where_filter:
-        query_kwargs["where"] = where_filter
-    res = coll.query(**query_kwargs)
+    try:
+        coll = get_collection()
+        qvec = embed_query(query)
+        actual_top_k = min(top_k, coll.count())
+        if actual_top_k == 0:
+            return []
+        query_kwargs: dict = dict(
+            query_embeddings=[qvec],
+            n_results=actual_top_k,
+            include=["documents", "metadatas", "distances"],
+        )
+        if where_filter:
+            query_kwargs["where"] = where_filter
+        res = coll.query(**query_kwargs)
+    except Exception:
+        return []
+
     out: list[Chunk] = []
     ids = res.get("ids", [[]])[0]
     docs = res.get("documents", [[]])[0]

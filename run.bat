@@ -14,4 +14,4 @@ echo Keep this window open while using the app.
 echo Press Ctrl+C to stop.
 echo.
 
-..\venv\Scripts\streamlit.exe run app.py
+..\venv\Scripts\streamlit.exe run app.py --server.fileWatcherType none

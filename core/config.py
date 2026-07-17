@@ -1,6 +1,10 @@
 """
 Central configuration. Loads env vars from the project root .env or the LegalTech parent .env.
-All API keys must come from environment variables — never hard-coded.
+
+Provider priority (set in llm.py):
+  1. Siemens  — primary LLM (SIEMENS_API_KEY required)
+  2. Groq     — fallback for routing calls (GROQ_API_KEY optional)
+  3. Gemini   — fallback for synthesis calls (GOOGLE_API_KEY optional)
 """
 from __future__ import annotations
 
@@ -35,41 +39,41 @@ def _optional(name: str, *aliases: str, default: str | None = None) -> str | Non
     return default
 
 
-GOOGLE_API_KEY = _require("GOOGLE_API_KEY", "GEMINI_API_KEY")
-GROQ_API_KEY = _require("GROQ_API_KEY")
-HF_TOKEN = _optional("HF_TOKEN", "HUGGINGFACE_API_TOKEN", "HUGGINGFACE_TOKEN")
-VOYAGE_API_KEY = _optional("VOYAGE_API_KEY")
-
-# Siemens OpenAI-compatible API (fallback when Gemini/Groq quota exhausted)
-SIEMENS_API_KEY = _optional("SIEMENS_API_KEY", "OPENAI_API_KEY")
+# ── Primary LLM: Siemens (required) ──────────────────────────────────────────
+SIEMENS_API_KEY = _require("SIEMENS_API_KEY", "OPENAI_API_KEY")
 SIEMENS_BASE_URL = _optional("SIEMENS_BASE_URL", default="https://api.siemens.com/llm/v1")
 SIEMENS_MODEL = _optional("SIEMENS_MODEL", default="gpt-oss-120b-onprem")
 
-GEMINI_SYNTHESIS_MODEL = _optional(
-    "GEMINI_SYNTHESIS_MODEL", default="gemini-2.5-flash"
-)
-GEMINI_HEAVY_MODEL = _optional("GEMINI_HEAVY_MODEL", default="gemini-2.5-pro")
-GEMINI_EMBEDDING_MODEL = _optional(
-    "GEMINI_EMBEDDING_MODEL", default="gemini-embedding-001"
-)
-GEMINI_EMBEDDING_DIM = int(_optional("GEMINI_EMBEDDING_DIM", default="768") or "768")
-GROQ_ROUTER_MODEL = _optional(
-    "GROQ_ROUTER_MODEL", default="llama-3.3-70b-versatile"
-)
+# ── Fallback LLMs (optional — app degrades gracefully without them) ───────────
+GOOGLE_API_KEY = _optional("GOOGLE_API_KEY", "GEMINI_API_KEY")
+GROQ_API_KEY = _optional("GROQ_API_KEY")
 
-# Embedding backend selection — set LEGAL_RAG_EMBEDDER to one of:
-#   gemini   (default) — Gemini embedding-001 via Google API
-#   local    — sentence-transformers model, runs fully offline
-#   voyage   — Voyage AI API (voyage-law-2 recommended for legal)
-#   hf_api   — HuggingFace Inference API (free tier, rate-limited)
+HF_TOKEN = _optional("HF_TOKEN", "HUGGINGFACE_API_TOKEN", "HUGGINGFACE_TOKEN")
+VOYAGE_API_KEY = _optional("VOYAGE_API_KEY")
+
+# ── Model names ───────────────────────────────────────────────────────────────
+GEMINI_SYNTHESIS_MODEL = _optional("GEMINI_SYNTHESIS_MODEL", default="gemini-2.5-flash")
+GEMINI_HEAVY_MODEL = _optional("GEMINI_HEAVY_MODEL", default="gemini-2.5-pro")
+GEMINI_EMBEDDING_MODEL = _optional("GEMINI_EMBEDDING_MODEL", default="gemini-embedding-001")
+GEMINI_EMBEDDING_DIM = int(_optional("GEMINI_EMBEDDING_DIM", default="768") or "768")
+GROQ_ROUTER_MODEL = _optional("GROQ_ROUTER_MODEL", default="llama-3.3-70b-versatile")
+
+# ── Embedding backend (set LEGAL_RAG_EMBEDDER in .env) ───────────────────────
+#   local   — sentence-transformers, fully offline (default — no API cost)
+#   gemini  — Gemini embedding-001 (requires GOOGLE_API_KEY)
+#   voyage  — voyage-law-2 (requires VOYAGE_API_KEY)
+#   hf_api  — HuggingFace Inference API (optional HF_TOKEN)
 LEGAL_RAG_VOYAGE_MODEL = _optional("LEGAL_RAG_VOYAGE_MODEL", default="voyage-law-2")
 LEGAL_RAG_HF_API_MODEL = _optional(
     "LEGAL_RAG_HF_API_MODEL", default="sentence-transformers/all-MiniLM-L6-v2"
 )
 
+# ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
-CHROMA_DIR = Path(_optional("LEGAL_RAG_CHROMA_DIR") or str(DATA_DIR / "chroma"))
+_chroma_raw = _optional("LEGAL_RAG_CHROMA_DIR") or str(DATA_DIR / "chroma")
+_chroma_path = Path(_chroma_raw)
+CHROMA_DIR = _chroma_path if _chroma_path.is_absolute() else PROJECT_ROOT / _chroma_path
 EVAL_DIR = PROJECT_ROOT / "eval"
 EVAL_RESULTS_DIR = EVAL_DIR / "results"
 

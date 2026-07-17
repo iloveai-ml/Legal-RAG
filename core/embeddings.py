@@ -46,6 +46,7 @@ _BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 _gemini_client = None
 _local_model = None
 _voyage_client = None
+_fastembed_model = None
 
 
 def _gemini():
@@ -67,6 +68,15 @@ def _load_local():
         from sentence_transformers import SentenceTransformer
         _local_model = SentenceTransformer(_LOCAL_MODEL_NAME)
     return _local_model
+
+
+def _load_fastembed():
+    global _fastembed_model
+    if _fastembed_model is None:
+        from fastembed import TextEmbedding
+        # all-MiniLM-L6-v2 via ONNX — no PyTorch, no segfault inside Streamlit
+        _fastembed_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
+    return _fastembed_model
 
 
 def _load_voyage():
@@ -109,12 +119,12 @@ def embed_texts(
     if not texts:
         return []
 
-    # ── Local (sentence-transformers) ──────────────────────────────────────
-    if _EMBEDDER_BACKEND == "local":
-        prepared = _apply_bge_prefix(list(texts), task_type)
-        model = _load_local()
-        vecs = model.encode(prepared, show_progress_bar=False, normalize_embeddings=True)
-        return vecs.tolist()
+    # ── FastEmbed (ONNX, no PyTorch — safe inside Streamlit threads) ──────
+    if _EMBEDDER_BACKEND in ("fastembed", "local"):
+        model = _load_fastembed()
+        # fastembed returns a generator of numpy arrays
+        vecs = list(model.embed(list(texts)))
+        return [v.tolist() for v in vecs]
 
     # ── Voyage AI ──────────────────────────────────────────────────────────
     if _EMBEDDER_BACKEND == "voyage":
