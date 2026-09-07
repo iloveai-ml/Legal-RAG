@@ -15,16 +15,18 @@ Built for the ILTN Vibeathon.
 
 ## Demo
 
-A full walkthrough of every feature, captioned. Nothing is mocked: every answer
-on screen came back from a live model during the recording.
+![Demo highlights](docs/demo/legal-rag-preview.gif)
 
-[![Watch the 5m 28s walkthrough](docs/demo/legal-rag-poster.png)](docs/demo/legal-rag-nyaya.mp4)
+Highlights from the full walkthrough, looping. Nothing here is mocked: every
+answer on screen came back from a live model while the recording was running.
 
-**[Watch the walkthrough, 5m 28s](docs/demo/legal-rag-nyaya.mp4)** &nbsp;·&nbsp;
-[Captions (.srt)](docs/demo/legal-rag-nyaya.srt)
+**Full walkthrough, 5m 28s, all 10 steps captioned:**
+[legal-rag-nyaya.mp4](docs/demo/legal-rag-nyaya.mp4) (7.0 MB)
+&nbsp;·&nbsp;
+[captions (.srt)](docs/demo/legal-rag-nyaya.srt)
 
-> GitHub opens the file in its own video player. To download it instead, use
-> the **Raw** button on that page.
+> GitHub cannot play a committed mp4 inline, so that link downloads the file
+> rather than streaming it. The GIF above is the inline preview.
 
 ---
 
