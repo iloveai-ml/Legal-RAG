@@ -1,0 +1,21 @@
+{
+  "built_at": "2026-09-05T10:55:22Z",
+  "n_chunks": 19144,
+  "n_documents": 1411,
+  "embed_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "embed_dim": 384,
+  "bm25": {
+    "k1": 1.5,
+    "b": 0.75,
+    "vocab_size": 42621
+  },
+  "doc_types": {
+    "case": 19023,
+    "statute": 116,
+    "constitution": 5
+  },
+  "outcome_tasks": {
+    "cjpe": 9580,
+    "bail": 739
+  }
+}

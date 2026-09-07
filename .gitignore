@@ -1,10 +1,27 @@
+# Secrets
 .env
 .env.*
-*.pyc
+!.env.example
+
+# Python
 __pycache__/
+*.py[cod]
 .venv/
 venv/
+*.egg-info/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .DS_Store
-data/chroma/
-eval/results/*.json
-.streamlit/secrets.toml
+Thumbs.db
+.idea/
+.vscode/
+
+# The prebuilt index IS committed on purpose. It is about 80 MB across four
+# files, every one under GitHub's 100 MB limit, and shipping it is what lets a
+# Render deploy come up with a working corpus and no build step.
+# Anything the build script writes outside data/index is scratch:
+data/scratch/
+*.tmp

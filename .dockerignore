@@ -1,0 +1,25 @@
+# Keep secrets out of the build context entirely, not merely out of the image.
+.env
+.env.*
+!.env.example
+
+.git/
+.gitignore
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# The build only needs app/ and data/index. Scripts are development tooling.
+scripts/
+README.md
+render.yaml
+
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

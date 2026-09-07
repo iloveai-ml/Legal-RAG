@@ -1,0 +1,49 @@
+1
+00:00:00,000 --> 00:00:29,711
+Retrieval over a real Indian legal corpus
+1,411 documents chunked into 19,144 passages: judgments, statutes and the Constitution. The index is committed to the repository, so a deploy comes up with a working corpus and no build step.
+
+2
+00:00:29,711 --> 00:00:52,166
+Hybrid retrieval, and embeddings that never leave the box
+Dense MiniLM vectors and BM25 over a 42,621 term vocabulary, fused. The encoder runs locally on onnxruntime, so search costs nothing, needs no key, and the query encoder can never drift from the index.
+
+3
+00:00:52,166 --> 00:01:19,632
+Bring your own API key
+Retrieval works with no key at all. A key is only needed to have a model write the answer over the retrieved passages, and a visitor can supply their own here.
+
+4
+00:01:19,632 --> 00:01:56,078
+Research, a cited answer over retrieved passages
+Every claim in the answer is anchored to a numbered source, and each source expands to the passage it came from, so nothing has to be taken on trust.
+
+5
+00:01:56,078 --> 00:02:19,711
+The sources behind the answer
+The retrieved passages are shown with their document, their type and their score. This is the part that makes a legal answer checkable rather than merely fluent.
+
+6
+00:02:19,711 --> 00:02:58,335
+Restrict the search to one kind of law
+Turn on Statutes and the retriever stops returning judgments, which matters when the question is about the text of a provision rather than how it has been applied.
+
+7
+00:02:58,335 --> 00:03:37,613
+Outcomes, how comparable matters were decided
+Give the facts of a matter and the system finds decided cases with similar facts and reports how they went. The index carries 9,580 judgment outcome labels and 739 bail decisions for exactly this.
+
+8
+00:03:37,613 --> 00:04:13,281
+Search, raw retrieval with no model at all
+The same hybrid retriever with the generation step removed. No key, no tokens, no latency beyond the index lookup, and nothing that could hallucinate.
+
+9
+00:04:13,281 --> 00:05:01,985
+Add your own document to the search
+A contract or judgment off your desk is chunked, embedded with the same local encoder and searched alongside the corpus. It stays in memory for the session and is never written to disk.
+
+10
+00:05:01,985 --> 00:05:27,847
+Deployable free, with the corpus in the box
+77 MB of index committed alongside the code, vectors memory mapped rather than loaded, no torch in the image and no embedding API. It fits a free instance and needs no key to be useful.

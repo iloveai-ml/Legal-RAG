@@ -1,0 +1,53 @@
+# Render blueprint for Nyaya.
+#
+# Point Render at this repository and it will pick this file up. Every provider
+# key below is optional: the app boots and serves retrieval with none of them,
+# and any single one turns on written answers. Set them under Environment in
+# the Render dashboard rather than committing them.
+
+services:
+  - type: web
+    name: nyaya
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore          # closest region to Indian users
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+    envVars:
+      # Cloudflare Workers AI needs both halves: the account id is part of the
+      # request URL, so the token alone addresses nothing.
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+      # ---- provider keys, all optional, at least one enables written answers
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+
+      # ---- which provider to try first when several are set
+      - key: PROVIDER_PRIORITY
+        value: groq,gemini,openai,huggingface
+
+      # ---- let visitors bring their own key from the settings panel
+      - key: ALLOW_BYO_KEY
+        value: "true"
+
+      # ---- guard the demo against a single visitor draining the quota
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "20"
+
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Keep onnxruntime single threaded. The free instance has a fraction of a
+      # vCPU, and extra threads there cost more in contention than they return.
+      - key: OMP_NUM_THREADS
+        value: "1"

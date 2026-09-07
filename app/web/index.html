@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nyaya</title>
+<meta name="description" content="Citation grounded research over a corpus of Indian statutes and judgments. Every claim traces back to a verified paragraph.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Devanagari:wght@400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<a class="skip-link" href="#workspace">Skip to the workspace</a>
+
+<div class="shell">
+
+  <!-- ------------------------------------------------------ rail -->
+  <aside class="rail" id="rail" aria-label="Navigation and corpus">
+    <div class="rail-head">
+      <a class="wordmark" href="/" aria-label="Nyaya home">
+        <span class="seal" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.25" opacity=".35"/>
+            <path d="M16 6v20M8.5 11.5h15M9 11.5 6 19h6l-3-7.5ZM23 11.5 20 19h6l-3-7.5Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+            <path d="M11.5 26h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="wordmark-text">
+          <strong>Nyaya</strong>
+          <em>न्याय</em>
+        </span>
+      </a>
+      <button class="icon-btn rail-close" id="railClose" aria-label="Close the menu">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <p class="rail-tagline">Citation grounded research on Indian law</p>
+
+    <nav class="modes" aria-label="Mode">
+      <button class="mode is-active" data-mode="research" type="button">
+        <span class="mode-name">Research</span>
+        <span class="mode-note">Ask a question, get cited passages</span>
+      </button>
+      <button class="mode" data-mode="outcomes" type="button">
+        <span class="mode-name">Outcomes</span>
+        <span class="mode-note">How similar matters were decided</span>
+      </button>
+      <button class="mode" data-mode="search" type="button">
+        <span class="mode-name">Search</span>
+        <span class="mode-note">Raw retrieval, no model involved</span>
+      </button>
+    </nav>
+
+    <section class="rail-block" id="corpusBlock" aria-live="polite">
+      <h2 class="rail-title">Corpus</h2>
+      <div class="corpus" id="corpusStats">
+        <div class="corpus-loading">Loading the index</div>
+      </div>
+    </section>
+
+    <section class="rail-block">
+      <h2 class="rail-title">Your documents</h2>
+      <p class="rail-hint">Add a contract or judgment and it is searched alongside the corpus. It stays in memory for this session only and is never written to disk.</p>
+      <label class="upload-drop" id="uploadDrop" tabindex="0">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.md" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><strong>Add a document</strong><small>PDF, DOCX, TXT or MD</small></span>
+      </label>
+      <ul class="doc-list" id="docList"></ul>
+    </section>
+
+    <section class="rail-block" id="filterBlock">
+      <h2 class="rail-title">Restrict to</h2>
+      <div class="chips" id="typeFilters">
+        <button class="chip" data-type="constitution" type="button">Constitution</button>
+        <button class="chip" data-type="statute" type="button">Statutes</button>
+        <button class="chip" data-type="case" type="button">Judgments</button>
+      </div>
+      <p class="rail-hint">Leave all off to search everything. Turning one on hides the rest.</p>
+    </section>
+
+    <div class="rail-foot">
+      <button class="ghost-btn" id="settingsBtn" type="button">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Settings
+      </button>
+      <button class="ghost-btn" id="themeBtn" type="button" aria-label="Switch theme">
+        <svg viewBox="0 0 20 20" aria-hidden="true" class="ico-sun"><circle cx="10" cy="10" r="3.6" stroke="currentColor" stroke-width="1.5"/><path d="M10 1.8v2.2M10 16v2.2M18.2 10H16M4 10H1.8M15.8 4.2l-1.6 1.6M5.8 14.2l-1.6 1.6M15.8 15.8l-1.6-1.6M5.8 5.8 4.2 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 20 20" aria-hidden="true" class="ico-moon"><path d="M16.5 12.6A7 7 0 0 1 7.4 3.5a7 7 0 1 0 9.1 9.1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span class="theme-label">Theme</span>
+      </button>
+      <div class="provider-pill" id="providerPill" role="status">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="provider-text">Checking</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="rail-scrim" id="railScrim" hidden></div>
+
+  <!-- ------------------------------------------------------ workspace -->
+  <main class="workspace" id="workspace">
+
+    <header class="topbar">
+      <button class="icon-btn rail-open" id="railOpen" aria-label="Open the menu">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h1 id="modeTitle">Research</h1>
+        <p id="modeBlurb">Ask about a statute, a judgment or a doctrine.</p>
+      </div>
+      <div class="topbar-actions">
+        <label class="switch" id="deepSwitch" title="Use the stronger model. Slower, better on hard questions.">
+          <input type="checkbox" id="deepToggle">
+          <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+          <span class="switch-text">Deep</span>
+        </label>
+        <button class="ghost-btn" id="clearBtn" type="button">Clear</button>
+      </div>
+    </header>
+
+    <div class="stream" id="stream">
+
+      <!-- Research intro -->
+      <section class="intro" id="introResearch">
+        <p class="eyebrow">Grounded retrieval</p>
+        <h2>Every sentence traces back to a paragraph you can read.</h2>
+        <p class="lede">
+          Nyaya searches a corpus of Indian statutes and judgments, then answers only from
+          what it found. Each claim carries a source tag, and each tag is checked against
+          the passage it points at before you ever see it. When the corpus does not hold
+          the answer, it says so instead of inventing one.
+        </p>
+        <div class="starters" id="startersResearch">
+          <button type="button" data-q="Is the right to privacy a fundamental right under the Indian Constitution?">
+            <span class="starter-kind">Doctrine</span>
+            Is the right to privacy a fundamental right?
+          </button>
+          <button type="button" data-q="What did the Supreme Court hold about Section 66A of the Information Technology Act?">
+            <span class="starter-kind">Judgment</span>
+            What became of Section 66A of the IT Act?
+          </button>
+          <button type="button" data-q="What is the pecuniary jurisdiction of a District Consumer Commission under the Consumer Protection Act 2019?">
+            <span class="starter-kind">Statute</span>
+            Pecuniary limits of a District Consumer Commission
+          </button>
+          <button type="button" data-q="What are the Vishaka guidelines on sexual harassment at the workplace?">
+            <span class="starter-kind">Precedent</span>
+            What are the Vishaka guidelines?
+          </button>
+          <button type="button" data-q="Explain the basic structure doctrine and the case that established it.">
+            <span class="starter-kind">Doctrine</span>
+            Explain the basic structure doctrine
+          </button>
+          <button type="button" data-q="Under Article 32, what remedies can the Supreme Court grant for enforcement of fundamental rights?">
+            <span class="starter-kind">Constitution</span>
+            Remedies available under Article 32
+          </button>
+        </div>
+      </section>
+
+      <!-- Outcomes intro -->
+      <section class="intro" id="introOutcomes" hidden>
+        <p class="eyebrow">Comparable matters</p>
+        <h2>How courts have decided matters like this one.</h2>
+        <p class="lede">
+          Describe the facts and the charges. Nyaya finds the closest matters in a labelled
+          corpus of Indian decisions, shows how each one actually ended, and explains what
+          separates the two groups. It reports a pattern in past cases. It does not predict
+          your result.
+        </p>
+        <div class="task-picker" role="radiogroup" aria-label="Dataset">
+          <button class="task is-active" data-task="cjpe" type="button" role="radio" aria-checked="true">
+            <strong>Court judgments</strong>
+            <span>English. Appeals recorded as accepted or rejected.</span>
+          </button>
+          <button class="task" data-task="bail" type="button" role="radio" aria-checked="false">
+            <strong>Bail applications</strong>
+            <span>Hindi text. Recorded as granted or denied.</span>
+          </button>
+        </div>
+        <div class="starters" id="startersOutcomes">
+          <button type="button" data-q="The accused is charged under Section 302 of the Indian Penal Code for an alleged murder arising out of a sudden quarrel. There were no eyewitnesses and the case rests on circumstantial evidence and a recovery made at the instance of the accused. The accused has no prior convictions and has been in custody for fourteen months.">
+            <span class="starter-kind">Example</span>
+            Circumstantial murder case, sole recovery evidence
+          </button>
+          <button type="button" data-q="A land acquisition award was challenged on the ground that the compensation determined by the Collector did not account for the potential of the land for residential development. The claimant relies on comparable sale deeds from the same village executed within a year of the notification.">
+            <span class="starter-kind">Example</span>
+            Land acquisition compensation, comparable sales
+          </button>
+        </div>
+      </section>
+
+      <!-- Search intro -->
+      <section class="intro" id="introSearch" hidden>
+        <p class="eyebrow">Retrieval inspector</p>
+        <h2>See exactly what the index returns.</h2>
+        <p class="lede">
+          This runs the hybrid search on its own, with no language model in the loop. It is
+          the fastest way to check what the corpus actually holds on a topic, and it costs
+          nothing and needs no API key. Each result shows its dense and keyword ranks so
+          you can see which half of the retriever found it.
+        </p>
+        <div class="starters" id="startersSearch">
+          <button type="button" data-q="basic structure doctrine constitutional amendment">
+            <span class="starter-kind">Query</span> basic structure doctrine
+          </button>
+          <button type="button" data-q="anticipatory bail Section 438 conditions">
+            <span class="starter-kind">Query</span> anticipatory bail conditions
+          </button>
+          <button type="button" data-q="workplace sexual harassment guidelines employer duty">
+            <span class="starter-kind">Query</span> workplace harassment duty
+          </button>
+        </div>
+      </section>
+
+      <div id="turns"></div>
+    </div>
+
+    <!-- composer -->
+    <div class="composer-wrap">
+      <div class="composer" id="composer">
+        <div class="composer-context" id="composerContext" hidden></div>
+        <div class="composer-row">
+          <textarea id="input" rows="1" placeholder="Ask about a statute, a judgment or a doctrine" autocomplete="off" spellcheck="true"></textarea>
+          <button class="send" id="sendBtn" type="button" aria-label="Send">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.4 10h13.2M11.2 4.6 16.6 10l-5.4 5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <p class="composer-foot">
+          <span id="composerHint">Enter to send, Shift and Enter for a new line</span>
+        </p>
+      </div>
+      <p class="disclaimer">
+        Nyaya is a research tool, not legal advice. Verify every citation against the official
+        report before relying on it.
+      </p>
+    </div>
+  </main>
+</div>
+
+<!-- ------------------------------------------------------ settings -->
+<div class="drawer-scrim" id="drawerScrim" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Settings" aria-hidden="true">
+  <header class="drawer-head">
+    <h2>Settings</h2>
+    <button class="icon-btn" id="drawerClose" aria-label="Close settings">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <div class="drawer-body">
+    <section class="drawer-section">
+      <h3>Language model</h3>
+      <p class="drawer-note">
+        Retrieval always runs locally, so search and sources work with no key at all.
+        A key is only needed for written answers.
+      </p>
+      <ul class="provider-list" id="providerList"></ul>
+    </section>
+
+    <section class="drawer-section" id="byoSection">
+      <h3>Use your own key</h3>
+      <p class="drawer-note">
+        Paste a Groq, Gemini, Cloudflare, OpenAI or Hugging Face key. It is held in this
+        browser only, sent with your requests, and never stored on the server.
+      </p>
+      <div class="key-field">
+        <input type="password" id="keyInput" placeholder="gsk_, AIza, sk-, hf_ or cfut_" autocomplete="off" spellcheck="false">
+        <button class="solid-btn" id="keySave" type="button">Save</button>
+      </div>
+      <div class="key-field" id="accountField" hidden>
+        <input type="text" id="accountInput" placeholder="Cloudflare Account ID" autocomplete="off" spellcheck="false">
+      </div>
+      <p class="drawer-note" id="accountNote" hidden>
+        Cloudflare puts the account in the request URL, so a token on its own cannot
+        address anything. Copy the Account ID from your Cloudflare dashboard overview.
+      </p>
+      <p class="key-status" id="keyStatus"></p>
+      <button class="link-btn" id="keyClear" type="button" hidden>Remove the saved key</button>
+    </section>
+
+    <section class="drawer-section">
+      <h3>Retrieval</h3>
+      <label class="range-field">
+        <span>Passages retrieved <output id="topKOut">8</output></span>
+        <input type="range" id="topK" min="4" max="16" step="1" value="8">
+      </label>
+      <label class="check-field">
+        <input type="checkbox" id="skipRouter">
+        <span>
+          <strong>Skip the query router</strong>
+          <small>Search the question verbatim. Saves one model call and is useful when the rewrite drifts.</small>
+        </span>
+      </label>
+    </section>
+
+    <section class="drawer-section">
+      <h3>How it works</h3>
+      <ol class="how-list">
+        <li><strong>Route.</strong> The question is classified and rewritten into a retrieval query.</li>
+        <li><strong>Retrieve.</strong> Dense vectors and BM25 run in parallel and are fused by reciprocal rank.</li>
+        <li><strong>Answer.</strong> The model writes only from the retrieved passages.</li>
+        <li><strong>Verify.</strong> Each citation is matched against the passage it names. Anything that does not match is flagged in the answer.</li>
+      </ol>
+    </section>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
