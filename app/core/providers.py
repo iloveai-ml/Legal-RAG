@@ -363,7 +363,7 @@ def chat(
             try:
                 client = _client(spec, api_key, cacheable, base_url)
                 response = client.chat.completions.create(**kwargs)
-                content = (response.choices[0].message.content or "").strip()
+                content = _content_text(response.choices[0].message.content).strip()
                 if not content:
                     raise RuntimeError("Provider returned an empty response.")
                 record.provider = spec.id
@@ -390,6 +390,37 @@ def chat(
 
 
 # ---------------------------------------------------------------- json helpers
+
+
+def _content_text(content: Any) -> str:
+    """Normalise a chat completion's content into text.
+
+    The OpenAI schema types this as a string, but not every gateway obeys.
+    Cloudflare Workers AI returns an already parsed object for some models, and
+    the multipart form arrives as a list of typed blocks. Both are flattened
+    back to text rather than being allowed to raise on .strip().
+    """
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict):
+                text = block.get("text") or block.get("content")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "".join(parts)
+    if isinstance(content, dict):
+        try:
+            return json.dumps(content, ensure_ascii=False)
+        except (TypeError, ValueError):
+            return str(content)
+    return str(content)
+
 
 _FENCE_RE = re.compile(r"^\s*```(?:json)?\s*|\s*```\s*$", re.IGNORECASE)
 
